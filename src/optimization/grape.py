@@ -315,5 +315,5 @@ if __name__ == "__main__":
     axes[2].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig("grape_optimization.png", dpi=150)
-    print("\nSaved 'grape_optimization.png'")
+    plt.savefig("images/grape_optimization.png", dpi=150)
+    print("\nSaved 'images/grape_optimization.png'")
