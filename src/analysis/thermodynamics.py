@@ -24,6 +24,34 @@ class ThermodynamicMetrics(NamedTuple):
     carnot_limit: float  # Carnot COP for comparison
 
 
+def compute_cooling_power(
+    params: SystemParams, n_initial: float, n_final: float
+) -> float:
+    """Compute cooling power (heat extracted per cycle)."""
+    omega = params.omega_c
+    hbar_omega = omega * 0.048  # in K
+    delta_n = n_initial - n_final
+    return hbar_omega * max(0, delta_n)
+
+
+def compute_cop(Q_cool: float, W_drive: float) -> float:
+    """Compute Coefficient of Performance."""
+    if W_drive > 1e-10:
+        return Q_cool / W_drive
+    return float("inf") if Q_cool > 0 else 0.0
+
+
+def compute_entropy_efficiency(
+    params: SystemParams, T_cav: float, W_drive: float
+) -> float:
+    """Compute entropy efficiency."""
+    T_cold = min(T_cav, params.T_atom)
+    if T_cold > 0 and W_drive > 0:
+        delta_T = params.T_bath - T_cav
+        return (delta_T / T_cold) / (W_drive + 1e-10)
+    return 0.0
+
+
 def compute_thermodynamics(
     params: SystemParams,
     cycle: FloquetCycleParams,
