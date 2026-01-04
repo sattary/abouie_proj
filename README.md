@@ -1,38 +1,78 @@
-# Quantum Cavity Cooling
+# Floquet-Engineered Cavity Cooling
 
-Based on: **"Quantum Correlation-Assisted Cooling of Microwave Cavities Below the Ambient Temperature"**
-by Vashaee & Abouie
+**Breaking the Stochastic Cooling Limit with Coherent Control**
 
-## Project Structure
+![Status](https://img.shields.io/badge/Status-Complete-success)
+![Cooling](https://img.shields.io/badge/Cooling-Super--Stochastic-blue)
+![Physics](https://img.shields.io/badge/Physics-Floquet-purple)
 
-```
-src/
-  physics/          # Lindblad master equation simulator
-    cavity_cooling.py   - Core physics engine (cavity + 2 qubits)
-  optimization/     # Pulse optimization scripts
-    optimize_cavity.py      - Gradient descent pulse optimization
-    optimize_cavity2.py     - Alternative optimizer
-    train_neural_pulse.py   - Neural network pulse generator
-papers/             # Reference papers
-```
+This repository contains the code, data, and verification suites for the PRL paper on **Floquet-Engineered Cooling**. We demonstrate that coherent, non-commuting modulation of qubit-cavity parameters can pump entropy faster than the fundamental limits of static (stochastic) interactions.
 
-## Quick Start
+## 🚀 Key Results
+
+### 1. Beating the Thermodynamic Limit
+
+We achieved cavity occupations significantly lower than the theoretical minimum for static cooling ($n^*$).
+
+![Comparison](results/figures/fig1_comparison.png)
+
+| Method               | $\langle n \rangle$ | Improvement | Strategy       |
+| :------------------- | :------------------ | :---------- | :------------- |
+| **Stochastic Limit** | `1.44`              | -           | _Baseline_     |
+| **GRAPE (Gradient)** | `1.02`              | **29%**     | _Smooth Pulse_ |
+| **SAC (RL)**         | `0.94`              | **35%**     | _Bang-Bang_    |
+
+### 2. The Solution
+
+The optimal cooling protocol involves a precise, non-commuting dance between coupling strength $g(t)$ and detuning $\Delta(t)$.
+
+![Waveforms](results/figures/fig2_waveforms.png)
+
+### 3. No-Go Theorem Verification
+
+We rigorously verified that this effect is strictly due to **non-commuting dynamics**. If $[H(t_1), H(t_2)] = 0$ (e.g., static detuning), the advantage vanishes.
+
+![No-Go Sweep](results/figures/fig3_nogo_sweep.png)
+
+---
+
+## 📂 Project Structure
+
+A comprehensive guide is available in [`docs/project_guide.md`](docs/project_guide.md).
+
+- `src/physics/`: Core JAX-based quantum engine (Lindblad, Hamiltonian).
+- `src/floquet/`: High-performance Floquet cycle simulator using `jax.lax.scan`.
+- `src/optimization/`: GRAPE optimizer implementation.
+- `src/rl/`: Gymnasium environment and SAC agent training.
+- `src/validation/`: Critical physics checks (No-Go theorem, RWA breakdown).
+
+## ⚡ Quick Start
+
+### Installation
 
 ```bash
-# Install dependencies
-uv sync
-
-# Run physics baseline test
-python -m src.physics.cavity_cooling
-
-# Run neural pulse optimization
-python -m src.optimization.train_neural_pulse
+uv pip install -r requirements.txt
+# OR
+uv pip install jax jaxlib flax optax matplotlib stable-baselines3 gymnasium scipy seaborn
 ```
 
-## Physics
+### Reproduce Figures
 
-The simulator implements the Jaynes-Cummings model for a microwave cavity coupled to two superconducting qubits, with Lindblad dissipation to model cavity decay:
+Generate all publication plots in `results/figures/`:
 
-- **Hilbert space**: 5 Fock states x 2 qubits x 2 qubits = 20 dimensions
-- **Hamiltonian**: H = g(t) \* (a^dag S- + a S+)
-- **Dissipation**: D[sqrt(kappa) * a]
+```bash
+uv run python -m src.analysis.figures
+```
+
+### Run No-Go Verification
+
+Prove the physics yourself:
+
+```bash
+uv run python -m src.validation.no_go_theorem
+```
+
+---
+
+**Author**: Reza Sattary
+**License**: MIT
